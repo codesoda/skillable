@@ -1,26 +1,34 @@
 # Skillable
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that analyzes tool call patterns across your sessions to discover common workflows, suggest new skills, and identify what's already well-served.
+Agents accumulate patterns you never notice. Skillable mines your session transcripts to surface repeating workflows — so you can turn them into skills instead of doing the same 12-step dance every time.
 
-## What it does
+Works with [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Codex](https://openai.com/index/introducing-codex/), and other agents that support skills.
 
-Skillable scans your Claude Code session transcripts and:
+## Install
 
-- **Extracts tool call sequences** from JSONL session files
-- **Computes usage statistics** — tool frequency, top commands, skill usage
-- **Identifies workflow clusters** — investigation, commit, PR creation, CI monitoring, etc.
-- **Discovers repeating patterns** — bigrams, trigrams, and longer n-grams
-- **Recommends new skills** — workflows that could be automated based on your actual usage
-- **Highlights well-served patterns** — things that already have skills or don't need one
-
-## Installation
-
-Copy the `SKILL.md` file into your Claude Code skills directory:
+### Using npx skills (recommended)
 
 ```bash
-mkdir -p ~/.claude/skills/skillable
-cp SKILL.md ~/.claude/skills/skillable/SKILL.md
+npx skills add codesoda/skillable
 ```
+
+### From GitHub (one-liner)
+
+```sh
+curl -sSf https://raw.githubusercontent.com/codesoda/skillable/main/install.sh | sh
+```
+
+Installs to `~/.agent/skills/skillable` and symlinks into `~/.claude/skills/` if Claude Code is detected.
+
+### From a clone
+
+```sh
+git clone https://github.com/codesoda/skillable.git
+cd skillable
+sh install.sh
+```
+
+Local installs use symlinks so edits to the repo are immediately reflected.
 
 ## Usage
 
@@ -31,20 +39,29 @@ cp SKILL.md ~/.claude/skills/skillable/SKILL.md
 /skillable --projects my-app my-lib               # Specific projects
 ```
 
-## Output
+## What you get
 
-Skillable generates a structured markdown report with:
+A structured markdown report covering:
 
 1. **Overview** — scope, period, session/tool call counts
 2. **Tool Usage Breakdown** — counts and percentages per tool
 3. **Top Commands** — most-used Bash commands
 4. **Existing Skill Usage** — which skills you already use
 5. **Workflow Clusters** — session classification
-6. **Common Sequences** — repeating tool call patterns
+6. **Common Sequences** — repeating tool call patterns (bigrams, trigrams, n-grams)
 7. **Skillable Workflows** — recommended new skills with frequency, sequence, and effort saved
 8. **Already Well-Served** — patterns that don't need a skill
 
 After the report, it offers to create `SKILL.md` files for any recommended workflows.
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AGENT_SKILLS_DIR` | `~/.agent/skills` | Override canonical install location |
+| `SKILLABLE_REPO_OWNER` | `codesoda` | Override repo owner for remote fetches |
+| `SKILLABLE_REPO_NAME` | `skillable` | Override repo name for remote fetches |
+| `SKILLABLE_REPO_REF` | `main` | Override branch/ref for remote fetches |
 
 ## License
 

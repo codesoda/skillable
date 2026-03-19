@@ -26,13 +26,14 @@ If `--all` or `--projects` was provided, skip the picker. If `--days` was provid
 
 ### Step 1: Locate session transcripts
 
-Session transcripts are JSONL files under `~/.claude/projects/`. Each project directory uses a mangled path pattern like `-Users-username-projects-project-name/`.
+Scan all detected agents for session files. Read `docs/agent-sessions.md` for the full list of agents, session paths, and file formats.
 
-```bash
-PROJECT_DIR=$(pwd)          # current project
-ls ~/.claude/projects/      # all projects
-ls -d ~/.claude/projects/*name*  # match by name
-```
+At minimum, check for:
+- Claude Code: `~/.claude/projects/` (JSONL, repo-scoped dirs)
+- Codex: `~/.codex/sessions/YYYY/MM/DD/` (JSONL, date-based hierarchy)
+- OpenCode: `~/Library/Application Support/opencode/storage/` or `~/.local/share/opencode/storage/` (JSON fragments reassembled per session)
+
+Report which agents were found and how many sessions per agent.
 
 ### Step 2: Filter to time window
 

@@ -20,32 +20,23 @@ Analyze agent session transcripts to discover common tool call patterns, identif
 ### Step 0: Determine project scope
 
 If no arguments are provided, present an interactive project picker.
-Read `docs/interactive-selection.md` for the picker UI details.
+Read the picker flow from docs/interactive-selection.md — it has the alerter checklist command, AskUserQuestion fallback, and time window prompts.
 
 If `--all` or `--projects` was provided, skip the picker. If `--days` was provided, skip the time window picker.
 
 ### Step 1: Locate session transcripts
 
-Scan all detected agents for session files. Read `docs/agent-sessions.md` for the full list of agents, session paths, and file formats.
+Scan all detected agents for session files. Read docs/agent-sessions.md for the full map of 12 supported agents, their session directories, and file formats (JSONL, JSON, or SQLite).
 
-At minimum, check for:
-- Claude Code: `~/.claude/projects/` (JSONL, repo-scoped dirs)
-- Codex: `~/.codex/sessions/YYYY/MM/DD/` (JSONL, date-based hierarchy)
-- OpenCode: `~/Library/Application Support/opencode/storage/` or `~/.local/share/opencode/storage/` (JSON fragments reassembled per session)
-
-Report which agents were found and how many sessions per agent.
+Check which agent directories exist, report discovered agents, and collect sessions from all of them.
 
 ### Step 2: Filter to time window
 
-Only include sessions modified within the `--days` window (default 7):
-
-```bash
-find ~/.claude/projects/project-dir/ -name "*.jsonl" -mtime -7
-```
+Only include sessions modified within the `--days` window (default 7).
 
 ### Step 3: Extract tool calls
 
-Read `docs/extraction.md` for JSONL parsing details and command normalization rules.
+Read docs/extraction.md for the grep patterns to pull tool_use blocks from JSONL and the command normalization table.
 
 ### Step 4: Compute statistics
 
@@ -57,29 +48,18 @@ Read `docs/extraction.md` for JSONL parsing details and command normalization ru
 
 ### Step 5: Identify workflow clusters
 
-Classify sessions by workflow markers:
-
-| Marker | Detection |
-|--------|-----------|
-| Investigation | Heavy Read/Grep/Glob without much Edit |
-| Commit | `git-add` + `git-commit` or `Skill:commit` |
-| PR creation | `gh-pr-create` |
-| PR review response | `gh-api` reading PR comments + Edit + push |
-| CI monitoring | `gh-run-view` or `gh-run-list` |
-| Build/test cycle | `cargo-test`, `cargo-agent-sh`, `npm-agent-sh` |
-| Branch setup | `git-checkout-b` or `git-switch-c` |
+Classify sessions by workflow markers. Read docs/workflow-markers.md for the detection table mapping markers (investigation, commit, PR creation, CI monitoring, etc.) to their tool call signatures.
 
 ### Step 6: Generate the report
 
-Read `docs/report-format.md` for the full 8-section report template.
+Read docs/report-format.md for the full 8-section report template covering overview, tool breakdown, top commands, skill usage, clusters, n-grams, skillable workflows, and already well-served patterns.
 
 ### Step 7: Offer to create skills
 
-Ask the user which discovered workflows to turn into skills. For each selected:
+Ask me which discovered workflows to turn into skills. For each selected:
 
-1. Create `~/.claude/skills/skill-name/SKILL.md`
-2. Use standard SKILL.md format (YAML frontmatter with name, description, allowed-tools)
-3. Design the workflow based on observed tool call sequences
+1. If a `/skill-creator` skill is available, use it. Otherwise create `~/.claude/skills/skill-name/SKILL.md` following the spec at https://agentskills.io/specification
+2. Design the workflow based on observed tool call sequences
 
 ### Step 8: Save the report
 
@@ -89,10 +69,7 @@ Save to `docs/plans/skill-analysis-DATE.md` (project-scoped) or a temp file (cro
 
 ## Tips
 
-- Use grep/awk to extract tool call data from JSONL — do not read entire files
-- Parallelize when scanning multiple projects
-- Normalize command variations (e.g. `git add .` and `git add src/foo.rs` are both `git-add`)
 - Only count top-level tool calls, not subagent internals
-- Treat each JSONL as independent (no session deduplication)
+- Treat each session file as independent (no cross-session deduplication)
 - Scan `~/.claude/skills/`, `~/.agent/skills/`, and `~/.codex/skills/` for existing skills to populate the "Exists?" column
-- After the report, offer to symlink any skills missing from one location into the others (e.g. a skill only in `~/.claude/skills/` could be symlinked into `~/.agent/skills/` so Codex can use it too, and vice versa)
+- After the report, offer to symlink any skills missing from one location into the others

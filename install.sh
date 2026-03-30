@@ -196,7 +196,7 @@ info ""
 info "Installing to ${AGENT_SKILLS_DIR}/${SKILL_NAME}..."
 install_to_agent_dir
 
-# 2. Symlink from Claude Code if installed (Codex reads ~/.agent/skills directly)
+# 2. Symlink into agent-specific skill directories if available
 info ""
 
 if command -v claude >/dev/null 2>&1; then
@@ -206,5 +206,12 @@ if command -v claude >/dev/null 2>&1; then
   fi
 fi
 
+if command -v codex >/dev/null 2>&1; then
+  codex_dir="$HOME/.codex/skills"
+  if prompt_yes_no "Codex detected — symlink to ${codex_dir}/${SKILL_NAME}?" yes; then
+    symlink_agent_dir "Codex" "$codex_dir"
+  fi
+fi
+
 info ""
-info "Done! Use /skillable in your agent to analyze tool usage patterns."
+info "Done! Use skillable in your agent to analyze tool usage patterns."

@@ -18,7 +18,7 @@ npx skills add codesoda/skillable
 curl -sSf https://raw.githubusercontent.com/codesoda/skillable/main/install.sh | sh
 ```
 
-Installs to `~/.agent/skills/skillable` and symlinks into `~/.claude/skills/` if Claude Code is detected.
+Installs to `~/.agent/skills/skillable` and symlinks into Claude Code and Codex if detected
 
 ### From a clone
 
